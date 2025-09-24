@@ -33,7 +33,7 @@
         .btn-custom:hover {
             background: #f1f1f1;
             transform: translateY(-3px);
-            box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
     </style>
 </head>

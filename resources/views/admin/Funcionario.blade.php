@@ -1,12 +1,19 @@
+@php use Carbon\Carbon; @endphp
 @extends('layouts.app')
 
 @section('content')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <div class="container py-4">
-        @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
         @if($errors->any())
-            <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul></div>
+            <div class="alert alert-danger">
+                <ul class="mb-0">@foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach</ul>
+            </div>
         @endif
 
         <div class="card shadow-sm mb-4">
@@ -27,7 +34,8 @@
 
                         <div class="col-md-2">
                             <label class="form-label">Data Nasc.</label>
-                            <input type="date" name="dt_nascimento" class="form-control" value="{{ old('dt_nascimento') }}">
+                            <input type="date" name="dt_nascimento" class="form-control"
+                                   value="{{ old('dt_nascimento') }}">
                         </div>
 
                         <div class="col-md-2">
@@ -50,7 +58,8 @@
                             <select name="cargo_id" class="form-select">
                                 <option value="">--</option>
                                 @foreach($cargos as $c)
-                                    <option value="{{ $c->id }}" {{ old('cargo_id') == $c->id ? 'selected' : '' }}>{{ $c->nome }}</option>
+                                    <option
+                                        value="{{ $c->id }}" {{ old('cargo_id') == $c->id ? 'selected' : '' }}>{{ $c->nome }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -60,7 +69,8 @@
                             <select name="unidade_id" class="form-select">
                                 <option value="">--</option>
                                 @foreach($unidades as $u)
-                                    <option value="{{ $u->id }}" {{ old('unidade_id') == $u->id ? 'selected' : '' }}>{{ $u->nome }}</option>
+                                    <option
+                                        value="{{ $u->id }}" {{ old('unidade_id') == $u->id ? 'selected' : '' }}>{{ $u->nome }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -78,7 +88,16 @@
             <div class="card-body table-responsive">
                 <table class="table table-sm table-striped align-middle" id="tableFuncionarios">
                     <thead class="table-light">
-                    <tr><th>ID</th><th>Nome</th><th>Matrícula</th><th>Email</th><th>Cargo</th><th>Unidade</th><th>Ações</th></tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Matrícula</th>
+                        <th>Email</th>
+                        <th>Data de nascimento</th>
+                        <th>Cargo</th>
+                        <th>Unidade</th>
+                        <th>Ações</th>
+                    </tr>
                     </thead>
                     <tbody>
                     @foreach($funcionarios as $f)
@@ -87,6 +106,7 @@
                             <td class="col-nome">{{ $f->nome }}</td>
                             <td>{{ $f->matricula }}</td>
                             <td>{{ $f->email }}</td>
+                            <td>{{ $f->dt_nascimento ? Carbon::parse($f->dt_nascimento)->format('d/m/Y') : '' }}</td>
                             <td>{{ optional($f->cargo)->nome }}</td>
                             <td>{{ optional($f->unidade)->nome }}</td>
                             <td>
@@ -98,9 +118,11 @@
                                         data-sexo="{{ $f->sexo }}"
                                         data-email="{{ $f->email }}"
                                         data-cargo="{{ $f->cargo_id }}"
-                                        data-unidade="{{ $f->unidade_id }}">Editar</button>
+                                        data-unidade="{{ $f->unidade_id }}">Editar
+                                </button>
 
-                                <form action="{{ route('funcionario.destroy', $f->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Excluir funcionário #{{ $f->id }}?')">
+                                <form action="{{ route('funcionario.destroy', $f->id) }}" method="POST" class="d-inline"
+                                      onsubmit="return confirm('Excluir funcionário #{{ $f->id }}?')">
                                     @csrf
                                     @method('DELETE')
                                     <button class="btn btn-sm btn-outline-danger">Excluir</button>
@@ -182,6 +204,7 @@
     </div>
 
     <script>
+        //ANOTEI NO UNIDADE.BLADE A LÓGICA, AQ É BÁSICAMENTE UMA REPLICA DO UNIDADE
         const modalFuncEl = document.getElementById('modalEditFunc');
         let modalFunc;
         document.addEventListener('DOMContentLoaded', () => {
@@ -200,21 +223,6 @@
                     modalFunc.show();
                 });
             });
-
-            @if(session('edit_id') && $errors->any())
-            (function(){
-                const id = @json(session('edit_id'));
-                document.getElementById('f_nome').value = @json(old('nome'));
-                document.getElementById('f_matricula').value = @json(old('matricula'));
-                document.getElementById('f_dt').value = @json(old('dt_nascimento'));
-                document.getElementById('f_sexo').value = @json(old('sexo'));
-                document.getElementById('f_email').value = @json(old('email'));
-                document.getElementById('f_cargo').value = @json(old('cargo_id'));
-                document.getElementById('f_unidade').value = @json(old('unidade_id'));
-                document.getElementById('formEditFunc').action = '{{ url('funcionario') }}/' + id;
-                modalFunc.show();
-            })();
-            @endif
         });
     </script>
 @endsection

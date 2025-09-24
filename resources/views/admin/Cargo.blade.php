@@ -1,12 +1,19 @@
+@php use Carbon\Carbon; @endphp
 @extends('layouts.app')
 
 @section('content')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <div class="container py-4">
-        @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
+        @if(session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
         @if($errors->any())
-            <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul></div>
+            <div class="alert alert-danger">
+                <ul class="mb-0">@foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach</ul>
+            </div>
         @endif
 
         <div class="row g-4">
@@ -27,7 +34,8 @@
                             </div>
 
                             <div class="mb-3 form-check">
-                                <input type="checkbox" name="status" value="1" class="form-check-input" id="cargoStatus" {{ old('status',1) ? 'checked' : '' }}>
+                                <input type="checkbox" name="status" value="1" class="form-check-input"
+                                       id="cargoStatus" {{ old('status',1) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="cargoStatus">Ativo</label>
                             </div>
 
@@ -43,7 +51,15 @@
                     <div class="card-body table-responsive">
                         <table class="table table-sm table-striped align-middle" id="tableCargos">
                             <thead class="table-light">
-                            <tr><th>ID</th><th>Nome</th><th>Sigla</th><th>Status</th><th>Criado</th><th>Atualizado</th><th>Ações</th></tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Sigla</th>
+                                <th>Status</th>
+                                <th>Criado</th>
+                                <th>Atualizado</th>
+                                <th>Ações</th>
+                            </tr>
                             </thead>
                             <tbody>
                             @foreach($cargos as $c)
@@ -52,16 +68,19 @@
                                     <td class="col-nome">{{ $c->nome }}</td>
                                     <td class="col-sigla">{{ $c->sigla }}</td>
                                     <td class="col-status">{{ $c->status ? 'Ativo' : 'Inativo' }}</td>
-                                    <td>{{ $c->created_at }}</td>
-                                    <td>{{ $c->updated_at }}</td>
+                                    <td>{{ $c->created_at ? Carbon::parse($c->created_at)->format('d/m/Y') : '' }}</td>
+                                    <td>{{ $c->updated_at ? Carbon::parse($c->updated_at)->format('d/m/Y') : ''  }}</td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary btn-edit-cargo"
                                                 data-id="{{ $c->id }}"
                                                 data-nome="{{ $c->nome }}"
                                                 data-sigla="{{ $c->sigla }}"
-                                                data-status="{{ $c->status ? 1 : 0 }}">Editar</button>
+                                                data-status="{{ $c->status ? 1 : 0 }}">Editar
+                                        </button>
 
-                                        <form action="{{ route('cargo.destroy', $c->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Excluir cargo #{{ $c->id }}?')">
+                                        <form action="{{ route('cargo.destroy', $c->id) }}" method="POST"
+                                              class="d-inline"
+                                              onsubmit="return confirm('Excluir cargo #{{ $c->id }}?')">
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-sm btn-outline-danger">Excluir</button>
@@ -111,6 +130,7 @@
     </div>
 
     <script>
+        //ANOTEI NO UNIDADE.BLADE A LÓGICA, AQ É BÁSICAMENTE UMA REPLICA DO UNIDADE
         const modalCargoEl = document.getElementById('modalEditCargo');
         let modalCargo;
         document.addEventListener('DOMContentLoaded', () => {
@@ -120,22 +140,11 @@
                     const id = btn.dataset.id;
                     document.getElementById('e_nome').value = btn.dataset.nome || '';
                     document.getElementById('e_sigla').value = btn.dataset.sigla || '';
-                    document.getElementById('e_status').checked = btn.dataset.status == '1';
+                    document.getElementById('e_status').checked = btn.dataset.status === '1';
                     document.getElementById('formEditCargo').action = '{{ url('cargo') }}/' + id;
                     modalCargo.show();
                 });
             });
-
-            @if(session('edit_id') && $errors->any())
-            (function(){
-                const id = @json(session('edit_id'));
-                document.getElementById('e_nome').value = @json(old('nome'));
-                document.getElementById('e_sigla').value = @json(old('sigla'));
-                document.getElementById('e_status').checked = @json(old('status')) == 1;
-                document.getElementById('formEditCargo').action = '{{ url('cargo') }}/' + id;
-                modalCargo.show();
-            })();
-            @endif
         });
     </script>
 @endsection
